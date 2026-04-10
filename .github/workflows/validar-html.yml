@@ -1,0 +1,30 @@
+name: Validar HTML
+
+on:
+  push:
+    branches: ["**"]
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del codigo
+        uses: actions/checkout@v4
+
+      - name: Instalar validador HTML (tidy)
+        run: sudo apt-get install -y tidy
+
+      - name: Validar index.html
+        run: tidy -errors -quiet -utf8 index.html || true
+
+      - name: Validar about.html
+        run: tidy -errors -quiet -utf8 about.html || true
+
+      - name: Validar contacto.html
+        run: tidy -errors -quiet -utf8 contacto.html || true
+
+      - name: Verificar DOCTYPE en todos los HTML
+        run: |
+          for f in *.html; do
+            grep -qi "<!DOCTYPE html>" "$f" && echo "$f: OK" || (echo "$f: FALLO - falta DOCTYPE" && exit 1)
+          done
